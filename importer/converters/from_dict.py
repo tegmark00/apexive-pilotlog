@@ -4,7 +4,7 @@ from importer import models
 from importer.converters.base import Converter
 
 
-class JsonAircraftConverter(Converter):
+class AircraftConverter(Converter):
 
     def convert(self, data: dict) -> models.AirCraftDTO:
         return models.AirCraftDTO(
@@ -48,7 +48,7 @@ class JsonAircraftConverter(Converter):
         )
 
 
-class JsonAirFieldConverter(Converter):
+class AirFieldConverter(Converter):
     def convert(self, data: dict) -> models.AirFieldDTO:
         return models.AirFieldDTO(
             af_cat=data["AFCat"],
@@ -75,7 +75,7 @@ class JsonAirFieldConverter(Converter):
         )
 
 
-class JsonFlightConverter(Converter):
+class FlightConverter(Converter):
     def convert(self, data: dict) -> models.FlightDTO:
         return models.FlightDTO(
             pf=data["PF"],
@@ -160,7 +160,7 @@ class JsonFlightConverter(Converter):
         )
 
 
-class JsonImagePicConverter(Converter):
+class ImagePicConverter(Converter):
     def convert(self, data: dict) -> models.ImagePicDTO:
         return models.ImagePicDTO(
             file_ext=data["FileExt"],
@@ -173,7 +173,7 @@ class JsonImagePicConverter(Converter):
         )
 
 
-class JsonLimitRulesConverter(Converter):
+class LimitRulesConverter(Converter):
     def convert(self, data: dict) -> models.LimitRulesDTO:
         return models.LimitRulesDTO(
             l_to=data["LTo"],
@@ -187,7 +187,7 @@ class JsonLimitRulesConverter(Converter):
         )
 
 
-class JsonMyQueryConverter(Converter):
+class MyQueryConverter(Converter):
     def convert(self, data: dict) -> models.MyQueryDTO:
         return models.MyQueryDTO(
             name=data["Name"],
@@ -198,7 +198,7 @@ class JsonMyQueryConverter(Converter):
         )
 
 
-class JsonMyQueryBuildConverter(Converter):
+class MyQueryBuildConverter(Converter):
     def convert(self, data: dict) -> models.MyQueryBuildDTO:
         return models.MyQueryBuildDTO(
             build_1=data["Build1"],
@@ -211,7 +211,7 @@ class JsonMyQueryBuildConverter(Converter):
         )
 
 
-class JsonPilotConverter(Converter):
+class PilotConverter(Converter):
     def convert(self, data: dict) -> models.PilotDTO:
         return models.PilotDTO(
             notes=data["Notes"],
@@ -234,7 +234,7 @@ class JsonPilotConverter(Converter):
         )
 
 
-class JsonQualificationConverter(Converter):
+class QualificationConverter(Converter):
     def convert(self, data: dict) -> models.QualificationDTO:
         return models.QualificationDTO(
             q_code=data["QCode"],
@@ -253,7 +253,7 @@ class JsonQualificationConverter(Converter):
         )
 
 
-class JsonSettingConfigConverter(Converter):
+class SettingConfigConverter(Converter):
     def convert(self, data: dict) -> models.SettingConfigDTO:
         return models.SettingConfigDTO(
             data=data["Data"],
@@ -264,21 +264,24 @@ class JsonSettingConfigConverter(Converter):
         )
 
 
-class JsonLogEntryConverter(Converter):
+class LogEntryConverter(Converter):
     model_adapters = {
-        "aircraft": JsonAircraftConverter,
-        "airfield": JsonAirFieldConverter,
-        "flight": JsonFlightConverter,
-        "imagepic": JsonImagePicConverter,
-        "limitrules": JsonLimitRulesConverter,
-        "myquery": JsonMyQueryConverter,
-        "myquerybuild": JsonMyQueryBuildConverter,
-        "pilot": JsonPilotConverter,
-        "qualification": JsonQualificationConverter,
-        "settingconfig": JsonSettingConfigConverter,
+        "aircraft": AircraftConverter,
+        "airfield": AirFieldConverter,
+        "flight": FlightConverter,
+        "imagepic": ImagePicConverter,
+        "limitrules": LimitRulesConverter,
+        "myquery": MyQueryConverter,
+        "myquerybuild": MyQueryBuildConverter,
+        "pilot": PilotConverter,
+        "qualification": QualificationConverter,
+        "settingconfig": SettingConfigConverter,
     }
 
     def convert(self, data: dict) -> models.LogEntryDTO:
+
+        # https://docs.pydantic.dev/latest/concepts/fields/
+
         table_name = data["table"].lower()
         model_adapter = self.model_adapters[table_name]()
         meta = model_adapter.convert(data["meta"])

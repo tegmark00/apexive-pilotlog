@@ -16,7 +16,13 @@ class FileReadStrategy(ABC):
         pass
 
 
-class FileReader(Reader):
+class JsonFileReadStrategy(FileReadStrategy):
+
+    def formatted_data(self, data):
+        return json.loads(data.replace("\\\"", "\""))
+
+
+class LocalFileReader(Reader):
 
     def __init__(self, file_path: str, read_strategy: FileReadStrategy):
         self.file_path = file_path
@@ -27,7 +33,11 @@ class FileReader(Reader):
             return self.read_strategy.formatted_data(f.read())
 
 
-class JsonFileReadStrategy(FileReadStrategy):
+class StringReader(Reader):
 
-    def formatted_data(self, data):
-        return json.loads(data.replace("\\\"", "\""))
+    def __init__(self, data: str, read_strategy: FileReadStrategy):
+        self.data = data
+        self.read_strategy = read_strategy
+
+    def read(self):
+        return self.read_strategy.formatted_data(self.data)

@@ -1,9 +1,9 @@
-from importer.converters.iter import converted_items
-from importer.converters.json import JsonLogEntryConverter
-from importer.readers import FileReader, JsonFileReadStrategy
+from importer.utils import do_import
+from importer.converters.from_dict import LogEntryConverter
+from importer.readers import LocalFileReader, JsonFileReadStrategy
 
 from django.core.management import BaseCommand, CommandParser
-from pilotlog.serives.importing import DjangoImportSaver
+from pilotlog.importer.saver import DjangoSaver
 
 
 class Command(BaseCommand):
@@ -16,14 +16,11 @@ class Command(BaseCommand):
 
         if "file" in options:
 
-            reader = FileReader(
-                file_path=options["file"],
-                read_strategy=JsonFileReadStrategy()
-            )
-
-            DjangoImportSaver().save(
-                items=converted_items(
-                    items=reader.read(),
-                    converter=JsonLogEntryConverter()
-                )
+            do_import(
+                reader=LocalFileReader(
+                    file_path=options["file"],
+                    read_strategy=JsonFileReadStrategy()
+                ),
+                converter=LogEntryConverter(),
+                saver=DjangoSaver(),
             )

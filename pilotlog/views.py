@@ -6,14 +6,13 @@ from django.views import View
 from django.views.generic import FormView
 
 from exporter.writer import CSVWriteStrategy
-from importer.converters.iter import converted_items
-from importer.converters.json import JsonLogEntryConverter
-from importer.readers import JsonFileReadStrategy
+from importer.utils import do_import
+from importer.converters.from_dict import LogEntryConverter
+from importer.readers import JsonFileReadStrategy, StringReader
 from pilotlog.forms import UploadJsonFileForm
-from pilotlog.importer.readers import BytesReader
-from pilotlog.serives.exporting import get_logbook
+from pilotlog.exporter.logbook import DjangoLogbook
 from pilotlog.exporter.writers import LogbookStreamCSVWriter
-from pilotlog.serives.importing import DjangoImportSaver
+from pilotlog.importer.saver import DjangoSaver
 
 
 class IndexView(FormView):
@@ -21,21 +20,12 @@ class IndexView(FormView):
     template_name = 'pilotlog/index.html'
 
     def form_valid(self, form):
-        files = form.cleaned_data["file"]
-        saver = DjangoImportSaver()
 
-        for f in files:
-
-            reader = BytesReader(
-                bytes=f,
-                read_strategy=JsonFileReadStrategy()
-            )
-
-            saver.save(
-                items=converted_items(
-                    items=reader.read(),
-                    converter=JsonLogEntryConverter()
-                )
+        for f in form.cleaned_data["file"]:
+            do_import(
+                reader=StringReader(data=f.decode("utf-8"), read_strategy=JsonFileReadStrategy()),
+                converter=LogEntryConverter(),
+                saver=DjangoSaver(),
             )
 
         return super().form_valid(form)
@@ -57,7 +47,7 @@ class CSVLogbookExportView(View):
             response=response,
             write_strategy=CSVWriteStrategy()
         ).write(
-            get_logbook().render()
+            DjangoLogbook().get().render()
         )
 
         return response

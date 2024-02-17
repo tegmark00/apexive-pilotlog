@@ -2,7 +2,7 @@ import datetime
 
 from django.core.management import BaseCommand
 from exporter.writer import FileWriter, CSVWriteStrategy, ConsoleWriter
-from pilotlog.serives.exporting import get_logbook
+from pilotlog.exporter.logbook import DjangoLogbook
 
 
 class Command(BaseCommand):
@@ -19,5 +19,5 @@ class Command(BaseCommand):
             file_path=f"{time} output.csv",
             write_strategy=CSVWriteStrategy()
         ).write(
-            data=get_logbook().render()
+            data=DjangoLogbook().get().render()
         )

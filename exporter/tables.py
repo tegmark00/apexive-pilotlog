@@ -2,8 +2,7 @@ import dataclasses
 from typing import Iterable, Any
 
 from exporter.types import (
-    Type, text, yyyy, boolean, date, hhmm, decimal, number,
-    packed_detail_approach, packed_detail_person, datetime_
+    Type
 )
 
 
@@ -65,105 +64,3 @@ class Table:
                 yield [""] * max_columns
 
 
-def create_aircraft_table() -> Table:
-    return Table(
-        name="Aircraft Table",
-        meta_items=[
-            TableItem("AircraftID", text),
-            TableItem("EquipmentType", text),
-            TableItem("TypeCode", text),
-            TableItem("Year", yyyy),
-            TableItem("Make", text),
-            TableItem("Model", text),
-            TableItem("Category", text),
-            TableItem("Class", text),
-            TableItem("GearType", text),
-            TableItem("EngineType", text),
-            TableItem("Complex", boolean),
-            TableItem("HighPerformance", boolean),
-            TableItem("Pressurized", boolean),
-            TableItem("TAA", boolean),
-        ]
-    )
-
-
-def create_flights_table() -> Table:
-    return Table(
-        name="Flights Table",
-        meta_items=[
-            TableItem("Date", date),
-            TableItem("AircraftID", text),
-            TableItem("From", text),
-            TableItem("To", text),
-            TableItem("Route", text),
-
-            TableItem("TimeOut", hhmm),
-            TableItem("TimeOff", hhmm),
-            TableItem("TimeOn", hhmm),
-            TableItem("TimeIn", hhmm),
-            TableItem("OnDuty", hhmm),
-            TableItem("OffDuty", hhmm),
-
-            TableItem("TotalTime", decimal),
-            TableItem("PIC", decimal),
-            TableItem("SIC", decimal),
-            TableItem("Night", decimal),
-            TableItem("Solo", decimal),
-            TableItem("CrossCountry", decimal),
-            TableItem("NVG", decimal),
-            TableItem("NVGOps", number),
-            TableItem("Distance", decimal),
-
-            TableItem("DayTakeoffs", number),
-            TableItem("DayLandingsFullStop", number),
-            TableItem("NightTakeoffs", number),
-            TableItem("NightLandingsFullStop", number),
-            TableItem("AllLandings", number),
-
-            TableItem("ActualInstrument", decimal),
-            TableItem("SimulatedInstrument", decimal),
-            TableItem("HobbsStart", decimal),
-            TableItem("HobbsEnd", decimal),
-            TableItem("TachStart", decimal),
-            TableItem("TachEnd", decimal),
-
-            TableItem("Holds", number),
-
-            TableItem("Approach1", packed_detail_approach, show_comment=True),
-            TableItem("Approach2", packed_detail_approach),
-            TableItem("Approach3", packed_detail_approach),
-            TableItem("Approach4", packed_detail_approach),
-            TableItem("Approach5", packed_detail_approach),
-            TableItem("Approach6", packed_detail_approach),
-
-            TableItem("DualGiven", decimal),
-            TableItem("DualReceived", decimal),
-            TableItem("SimulatedFlight", decimal),
-            TableItem("GroundTraining", decimal),
-
-            TableItem("InstructorName", text),
-            TableItem("InstructorComments", text),
-
-            TableItem("Person1", packed_detail_person, show_comment=True),
-            TableItem("Person2", packed_detail_person),
-            TableItem("Person3", packed_detail_person),
-            TableItem("Person4", packed_detail_person),
-            TableItem("Person5", packed_detail_person),
-            TableItem("Person6", packed_detail_person),
-
-            TableItem("FlightReview", boolean),
-            TableItem("Checkride", boolean),
-            TableItem("IPC", boolean),
-            TableItem("NVGProficiency", boolean),
-            TableItem("FAA6158", boolean),
-
-            TableItem("[Text]CustomFieldName", text),
-            TableItem("[Numeric]CustomFieldName", decimal),
-            TableItem("[Hours]CustomFieldName", decimal),
-            TableItem("[Counter]CustomFieldName", number),
-            TableItem("[Date]CustomFieldName", date),
-            TableItem("[DateTime]CustomFieldName", datetime_),
-            TableItem("[Toggle]CustomFieldName", boolean),
-            TableItem("PilotComments", text),
-        ]
-    )

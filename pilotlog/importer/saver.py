@@ -1,16 +1,14 @@
 import dataclasses
-import time
 from typing import Any
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model as BaseDjangoModel
+from django.db.models import Model as BaseDjangoModel, Q, Exists, OuterRef
 from django.db.transaction import atomic
 
 from importer import models as dto
-from importer.import_saver import ImportSaver
-
+from importer.saver import Saver
 from pilotlog import models
-from pilotlog.serives.assosiations import associate_flights_and_airfields
+from pilotlog.models import Flight, AirField
 
 
 @dataclasses.dataclass(frozen=True)
@@ -22,12 +20,10 @@ class Map:
     unique_fields: list[str] = dataclasses.field(default_factory=list)
 
 
-class DjangoImportSaver(ImportSaver):
+class DjangoSaver(Saver):
 
     @atomic
     def save(self, items):
-
-        start = time.time()
 
         model_mapping = {
             dto.AirCraftDTO.__name__: Map(
@@ -139,8 +135,32 @@ class DjangoImportSaver(ImportSaver):
         )
 
         # Add existing airfields to flights
-        associate_flights_and_airfields()
+        self.associate_flights_and_airfields()
 
-        end = time.time()
+    @staticmethod
+    def associate_flights_and_airfields():
+        flights_to_update = Flight.objects.filter(
+            Q(arr__isnull=True) &
+            Exists(
+                AirField.objects.filter(
+                    pk=OuterRef('arr_code')
+                )
+            )
+        )
 
-        print(f"Imported {len(log_entries)} log entries in {end - start} seconds")
+        flights_to_update.update(
+            arr=OuterRef('arr_code')
+        )
+
+        flights_to_update = Flight.objects.filter(
+            Q(dep__isnull=True) &
+            Exists(
+                AirField.objects.filter(
+                    pk=OuterRef('dep_code')
+                )
+            )
+        )
+
+        flights_to_update.update(
+            dep=OuterRef('dep_code')
+        )

@@ -1,7 +1,5 @@
 from typing import Any, Iterable
-
-from exporter.tables import Table, create_aircraft_table, create_flights_table
-from exporter.writer import ConsoleWriter
+from exporter.tables import Table
 
 
 class Template:
@@ -23,28 +21,3 @@ class Template:
         yield [""] * max_columns
         for table in self.tables.values():
             yield from table.render(max_columns)
-
-
-def build_logbook_template(
-        aircraft_alias: str = "aircraft",
-        flights_alias: str = "flights",
-):
-    template = Template(
-        name="ForeFlight Logbook Import",
-    )
-
-    template.add_table(
-        alias=aircraft_alias,
-        table=create_aircraft_table()
-    )
-
-    template.add_table(
-        alias=flights_alias,
-        table=create_flights_table()
-    )
-
-    return template
-
-
-if __name__ == "__main__":
-    ConsoleWriter().write(build_logbook_template().render())

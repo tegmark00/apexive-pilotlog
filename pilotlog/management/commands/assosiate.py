@@ -1,8 +1,9 @@
 from django.core.management import BaseCommand
-from pilotlog.serives.assosiations import associate_flights_and_airfields
+
+from pilotlog.importer.saver import DjangoSaver
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        associate_flights_and_airfields()
+        DjangoSaver().associate_flights_and_airfields()
