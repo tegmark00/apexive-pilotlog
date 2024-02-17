@@ -103,10 +103,10 @@ class FlightDTO(BaseDTO):
     dep_rwy: str
     ldg_day: int
     lift_sw: int
-    p1_code: uuid.UUID
-    p2_code: uuid.UUID
-    p3_code: uuid.UUID
-    p4_code: uuid.UUID
+    p1_code: Optional[uuid.UUID]
+    p2_code: Optional[uuid.UUID]
+    p3_code: Optional[uuid.UUID]
+    p4_code: Optional[uuid.UUID]
     report: str
     tag_ops: str
     to_edit: bool
@@ -147,13 +147,14 @@ class FlightDTO(BaseDTO):
     tag_launch: str
     tag_lesson: str
     to_time_utc: int
-    arr_time_utc: int
+
+    arr_time_utc: Optional[datetime.time]
+    dep_time_utc: Optional[datetime.time]
+
     base_offset: int
 
     # flight
     cargo: Optional[int]
-
-    dep_time_utc: Optional[int]
     flight_code: uuid.UUID
     ldg_time_utc: int
     fuel_planned: int
@@ -164,6 +165,20 @@ class FlightDTO(BaseDTO):
     dep_time_sched: int
     flight_number: str
     flight_search: str
+
+    @field_validator("p1_code", "p2_code", "p3_code", "p4_code")
+    def validate_pilot_codes(cls, v: Optional[uuid.UUID], info: ValidationInfo) -> Optional[uuid.UUID]:
+        if v == uuid.UUID(int=0):
+            return None
+        return v
+
+    @field_validator("arr_time_utc", "dep_time_utc", mode="before")
+    def validate_time_utc(cls, v: Optional[int], info: ValidationInfo) -> Optional[datetime.time]:
+        if v:
+            h = v // 60
+            m = v % 60
+            return datetime.time(h, m)
+        return None
 
 
 class ImagePicDTO(BaseDTO):

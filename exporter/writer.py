@@ -1,3 +1,5 @@
+import csv
+
 from abc import ABC, abstractmethod
 from typing import Iterator, Any
 
@@ -14,11 +16,18 @@ class WriteStrategy(ABC):
         pass
 
 
+class Echo:
+    def write(self, value):
+        return value
+
+
 class CSVWriteStrategy(WriteStrategy):
 
     def written_lines(self, data) -> Iterator[Any]:
+        writer = csv.writer(Echo())
         for row in data:
-            yield ",".join(str(x) for x in row) + "\n"
+            formatted_row = writer.writerow(row)
+            yield formatted_row
 
 
 class FileWriter(Writer):

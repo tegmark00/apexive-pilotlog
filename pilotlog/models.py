@@ -20,13 +20,6 @@ class LogEntry(models.Model):
         return self.guid
 
 
-class LogEntryMixin(models.Model):
-    pass
-
-    class Meta:
-        abstract = True
-
-
 class RecordModifiedMixin(models.Model):
     record_modified = models.DateTimeField()
 
@@ -34,9 +27,16 @@ class RecordModifiedMixin(models.Model):
         abstract = True
 
 
+class UUIDCodePKMixin(models.Model):
+    code = models.UUIDField(primary_key=True)
+
+    class Meta:
+        abstract = True
+
+
 class ImportedModelMixin(
-    LogEntryMixin,
     RecordModifiedMixin,
+    UUIDCodePKMixin
 ):
 
     class Meta:
@@ -44,8 +44,6 @@ class ImportedModelMixin(
 
 
 class Aircraft(ImportedModelMixin):
-    aircraft_code = models.UUIDField(primary_key=True)
-
     fin = models.CharField(max_length=10)
     sea = models.BooleanField()
     tmg = models.BooleanField()
@@ -87,8 +85,6 @@ class Aircraft(ImportedModelMixin):
 
 
 class AirField(ImportedModelMixin):
-    af_code = models.UUIDField(primary_key=True)
-
     af_cat = models.IntegerField()
     afiata = models.CharField(max_length=10)
     aficao = models.CharField(max_length=10)
@@ -113,8 +109,28 @@ class AirField(ImportedModelMixin):
         db_table = "airfield"
 
 
+class Pilot(ImportedModelMixin):
+    notes = models.CharField(max_length=100)
+    active = models.BooleanField()
+    company = models.CharField(max_length=100)
+    fav_list = models.BooleanField()
+    user_api = models.CharField(max_length=100)
+    facebook = models.CharField(max_length=100)
+    linkedin = models.CharField(max_length=100)
+    pilot_ref = models.CharField(max_length=100)
+    pilot_name = models.CharField(max_length=100)
+    pilot_email = models.CharField(max_length=100)
+    pilot_phone = models.CharField(max_length=100)
+    certificate = models.CharField(max_length=100)
+    phone_search = models.CharField(max_length=100)
+    pilot_search = models.CharField(max_length=100)
+    roster_alias = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        db_table = "pilot"
+
+
 class Flight(ImportedModelMixin):
-    flight_code = models.UUIDField(primary_key=True)
     aircraft = models.ForeignKey(Aircraft, on_delete=models.SET_NULL, blank=True, null=True, db_column="aircraft_code")
 
     pf = models.BooleanField()
@@ -132,10 +148,15 @@ class Flight(ImportedModelMixin):
     dep_rwy = models.CharField(max_length=10)
     ldg_day = models.IntegerField()
     lift_sw = models.IntegerField()
-    p1_code = models.UUIDField()
-    p2_code = models.UUIDField()
-    p3_code = models.UUIDField()
-    p4_code = models.UUIDField()
+
+    # Should we move these to m2m relationship?
+    # As we have only 4 pilots, we can keep them as foreign keys
+    # Consider to move to m2m relationship if we have more pilots
+    p1 = models.ForeignKey(Pilot, on_delete=models.SET_NULL, blank=True, null=True, db_column="p1_code", related_name="p1_flights")
+    p2 = models.ForeignKey(Pilot, on_delete=models.SET_NULL, blank=True, null=True, db_column="p2_code", related_name="p2_flights")
+    p3 = models.ForeignKey(Pilot, on_delete=models.SET_NULL, blank=True, null=True, db_column="p3_code", related_name="p3_flights")
+    p4 = models.ForeignKey(Pilot, on_delete=models.SET_NULL, blank=True, null=True, db_column="p4_code", related_name="p4_flights")
+
     report = models.CharField(max_length=100)
     tag_ops = models.CharField(max_length=100)
     to_edit = models.BooleanField()
@@ -144,9 +165,14 @@ class Flight(ImportedModelMixin):
     min_pic = models.IntegerField()
     min_rel = models.IntegerField()
     min_sfr = models.IntegerField()
-    arr_code = models.UUIDField()
+
+    arr_code = models.UUIDField(db_column="_arr_code")
+    dep_code = models.UUIDField(db_column="_dep_code")
+
+    arr = models.ForeignKey(AirField, on_delete=models.SET_NULL, blank=True, null=True, db_column="arr_code", related_name="arr_flights")
+    dep = models.ForeignKey(AirField, on_delete=models.SET_NULL, blank=True, null=True, db_column="dep_code", related_name="dep_flights")
+
     date_utc = models.DateField()
-    dep_code = models.UUIDField()
     hobbs_in = models.IntegerField()
     holding = models.IntegerField()
     pairing = models.CharField(max_length=100)
@@ -176,13 +202,13 @@ class Flight(ImportedModelMixin):
     tag_launch = models.CharField(max_length=100)
     tag_lesson = models.CharField(max_length=100)
     to_time_utc = models.IntegerField()
-    arr_time_utc = models.IntegerField()
     base_offset = models.IntegerField()
 
     # flight
     cargo = models.IntegerField(blank=True, null=True)
+    dep_time_utc = models.TimeField(blank=True, null=True)
+    arr_time_utc = models.TimeField(blank=True, null=True)
 
-    dep_time_utc = models.IntegerField(blank=True, null=True)
     ldg_time_utc = models.IntegerField()
     fuel_planned = models.IntegerField()
     next_summary = models.BooleanField()
@@ -197,8 +223,6 @@ class Flight(ImportedModelMixin):
 
 
 class ImagePic(ImportedModelMixin):
-    img_code = models.UUIDField(primary_key=True)
-
     file_ext = models.CharField(max_length=10)
     file_name = models.CharField(max_length=100)
     link_code = models.UUIDField()
@@ -210,8 +234,6 @@ class ImagePic(ImportedModelMixin):
 
 
 class LimitRules(ImportedModelMixin):
-    limit_code = models.UUIDField(primary_key=True)
-
     l_to = models.DateField()
     l_from = models.DateField()
     l_type = models.IntegerField()
@@ -224,8 +246,6 @@ class LimitRules(ImportedModelMixin):
 
 
 class MyQuery(ImportedModelMixin):
-    mq_code = models.UUIDField(primary_key=True)
-
     name = models.CharField(max_length=100)
     quick_view = models.BooleanField()
     short_name = models.CharField(max_length=100)
@@ -235,7 +255,6 @@ class MyQuery(ImportedModelMixin):
 
 
 class MyQueryBuild(ImportedModelMixin):
-    mqb_code = models.UUIDField(primary_key=True)
     mq = models.ForeignKey(MyQuery, on_delete=models.CASCADE, db_column="mq_code")
 
     build_1 = models.CharField(max_length=100)
@@ -247,32 +266,7 @@ class MyQueryBuild(ImportedModelMixin):
         db_table = "my_query_build"
 
 
-class Pilot(ImportedModelMixin):
-    pilot_code = models.UUIDField(primary_key=True)
-
-    notes = models.CharField(max_length=100)
-    active = models.BooleanField()
-    company = models.CharField(max_length=100)
-    fav_list = models.BooleanField()
-    user_api = models.CharField(max_length=100)
-    facebook = models.CharField(max_length=100)
-    linkedin = models.CharField(max_length=100)
-    pilot_ref = models.CharField(max_length=100)
-    pilot_name = models.CharField(max_length=100)
-    pilot_email = models.CharField(max_length=100)
-    pilot_phone = models.CharField(max_length=100)
-    certificate = models.CharField(max_length=100)
-    phone_search = models.CharField(max_length=100)
-    pilot_search = models.CharField(max_length=100)
-    roster_alias = models.CharField(max_length=100, blank=True, null=True)
-
-    class Meta:
-        db_table = "pilot"
-
-
 class Qualification(ImportedModelMixin):
-    q_code = models.UUIDField(primary_key=True)
-
     ref_extra = models.IntegerField()
     ref_model = models.CharField(max_length=100)
     validity = models.IntegerField()
@@ -289,8 +283,8 @@ class Qualification(ImportedModelMixin):
         db_table = "qualification"
 
 
-class SettingConfig(ImportedModelMixin):
-    config_code = models.IntegerField(primary_key=True)
+class SettingConfig(RecordModifiedMixin):
+    code = models.IntegerField(primary_key=True)
 
     data = models.CharField(max_length=100)
     name = models.CharField(max_length=100)

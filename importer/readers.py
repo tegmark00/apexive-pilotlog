@@ -12,7 +12,7 @@ class Reader(ABC):
 class FileReadStrategy(ABC):
 
     @abstractmethod
-    def read(self, file):
+    def formatted_data(self, data):
         pass
 
 
@@ -24,13 +24,10 @@ class FileReader(Reader):
 
     def read(self):
         with open(self.file_path) as f:
-            return self.read_strategy.read(f)
+            return self.read_strategy.formatted_data(f.read())
 
 
 class JsonFileReadStrategy(FileReadStrategy):
 
-    def read(self, f):
-        file_data = f.read()
-        file_data = file_data.replace("\\\"", "\"")
-        data = json.loads(file_data)
-        return data
+    def formatted_data(self, data):
+        return json.loads(data.replace("\\\"", "\""))

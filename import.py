@@ -1,3 +1,5 @@
+import json
+
 from importer.readers import JsonFileReadStrategy, FileReader
 
 
@@ -13,4 +15,8 @@ if __name__ == "__main__":
     reader = get_reader(PATH)
 
     for item in reader.read():
-        print(item)
+        if item["table"] in ["airfield", "Airfield"]:
+            print(item["meta"])
+
+    # with open("test.json", "w") as file:
+    #     json.dump([{"a": 1, "b": 2}, {"a": 3, "b": 4}], file)

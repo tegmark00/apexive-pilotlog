@@ -8,6 +8,7 @@ from django.views.generic import FormView
 from exporter.writer import CSVWriteStrategy
 from importer.converters.iter import converted_items
 from importer.converters.json import JsonLogEntryConverter
+from importer.readers import JsonFileReadStrategy
 from pilotlog.forms import UploadJsonFileForm
 from pilotlog.importer.readers import BytesReader
 from pilotlog.serives.exporting import get_logbook
@@ -25,7 +26,10 @@ class IndexView(FormView):
 
         for f in files:
 
-            reader = BytesReader(bytes=f)
+            reader = BytesReader(
+                bytes=f,
+                read_strategy=JsonFileReadStrategy()
+            )
 
             saver.save(
                 items=converted_items(

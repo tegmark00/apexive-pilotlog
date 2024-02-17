@@ -10,6 +10,7 @@ from importer import models as dto
 from importer.import_saver import ImportSaver
 
 from pilotlog import models
+from pilotlog.serives.assosiations import associate_flights_and_airfields
 
 
 @dataclasses.dataclass(frozen=True)
@@ -32,54 +33,72 @@ class DjangoImportSaver(ImportSaver):
             dto.AirCraftDTO.__name__: Map(
                 models.Aircraft,
                 content_type=ContentType.objects.get_for_model(models.Aircraft),
-                unique_fields=['aircraft_code'],
+                map_fields={"aircraft_code": "code"},
+                unique_fields=['code'],
             ),
             dto.AirFieldDTO.__name__: Map(
                 models.AirField,
                 content_type=ContentType.objects.get_for_model(models.AirField),
-                unique_fields=['af_code'],
-            ),
-            dto.FlightDTO.__name__: Map(
-                models.Flight,
-                content_type=ContentType.objects.get_for_model(models.Flight),
-                map_fields={"aircraft_code": "aircraft_id"},
-                unique_fields=['flight_code'],
-            ),
-            dto.ImagePicDTO.__name__: Map(
-                models.ImagePic,
-                content_type=ContentType.objects.get_for_model(models.ImagePic),
-                unique_fields=['img_code']
-            ),
-            dto.LimitRulesDTO.__name__: Map(
-                models.LimitRules,
-                content_type=ContentType.objects.get_for_model(models.LimitRules),
-                unique_fields=['limit_code']
-            ),
-            dto.MyQueryDTO.__name__: Map(
-                models.MyQuery,
-                content_type=ContentType.objects.get_for_model(models.MyQuery),
-                unique_fields=['mq_code'],
-            ),
-            dto.MyQueryBuildDTO.__name__: Map(
-                models.MyQueryBuild,
-                content_type=ContentType.objects.get_for_model(models.MyQueryBuild),
-                map_fields={"mq_code": "mq_id"},
-                unique_fields=['mqb_code'],
+                map_fields={"af_code": "code"},
+                unique_fields=['code'],
             ),
             dto.PilotDTO.__name__: Map(
                 models.Pilot,
                 content_type=ContentType.objects.get_for_model(models.Pilot),
-                unique_fields=['pilot_code'],
+                map_fields={"pilot_code": "code"},
+                unique_fields=['code'],
+            ),
+            dto.FlightDTO.__name__: Map(
+                models.Flight,
+                content_type=ContentType.objects.get_for_model(models.Flight),
+                map_fields={
+                    "flight_code": "code",
+                    "aircraft_code": "aircraft_id",
+                    "p1_code": "p1_id",
+                    "p2_code": "p2_id",
+                    "p3_code": "p3_id",
+                    "p4_code": "p4_id",
+                },
+                unique_fields=['code'],
+            ),
+            dto.ImagePicDTO.__name__: Map(
+                models.ImagePic,
+                content_type=ContentType.objects.get_for_model(models.ImagePic),
+                map_fields={"img_code": "code"},
+                unique_fields=['code']
+            ),
+            dto.LimitRulesDTO.__name__: Map(
+                models.LimitRules,
+                content_type=ContentType.objects.get_for_model(models.LimitRules),
+                map_fields={"limit_code": "code"},
+                unique_fields=['code']
+            ),
+            dto.MyQueryDTO.__name__: Map(
+                models.MyQuery,
+                content_type=ContentType.objects.get_for_model(models.MyQuery),
+                map_fields={"mq_code": "code"},
+                unique_fields=['code'],
+            ),
+            dto.MyQueryBuildDTO.__name__: Map(
+                models.MyQueryBuild,
+                content_type=ContentType.objects.get_for_model(models.MyQueryBuild),
+                map_fields={
+                    "mqb_code": "code",
+                    "mq_code": "mq_id"
+                },
+                unique_fields=['code'],
             ),
             dto.QualificationDTO.__name__: Map(
                 models.Qualification,
                 content_type=ContentType.objects.get_for_model(models.Qualification),
-                unique_fields=['q_code'],
+                map_fields={"q_code": "code"},
+                unique_fields=['code'],
             ),
             dto.SettingConfigDTO.__name__: Map(
                 models.SettingConfig,
                 content_type=ContentType.objects.get_for_model(models.SettingConfig),
-                unique_fields=['config_code'],
+                map_fields={"config_code": "code"},
+                unique_fields=['code'],
             ),
         }
 
@@ -118,6 +137,9 @@ class DjangoImportSaver(ImportSaver):
             unique_fields=['guid', 'content_type'],
             ignore_conflicts=True
         )
+
+        # Add existing airfields to flights
+        associate_flights_and_airfields()
 
         end = time.time()
 
