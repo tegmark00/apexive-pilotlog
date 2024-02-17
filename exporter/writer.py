@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Iterator, Any
 
 
 class Writer(ABC):
@@ -7,27 +8,28 @@ class Writer(ABC):
         pass
 
 
-class FileWriteStrategy(ABC):
+class WriteStrategy(ABC):
     @abstractmethod
-    def write(self, file, data):
+    def written_lines(self, data) -> Iterator[Any]:
         pass
 
 
-class CSVWriteStrategy(FileWriteStrategy):
+class CSVWriteStrategy(WriteStrategy):
 
-    def write(self, file, data):
+    def written_lines(self, data) -> Iterator[Any]:
         for row in data:
-            file.write(",".join(str(x) for x in row) + "\n")
+            yield ",".join(str(x) for x in row) + "\n"
 
 
 class FileWriter(Writer):
-    def __init__(self, file_path: str, write_strategy: FileWriteStrategy):
+    def __init__(self, file_path: str, write_strategy: WriteStrategy):
         self.file_path = file_path
         self.write_strategy = write_strategy
 
     def write(self, data):
         with open(self.file_path, "w") as f:
-            self.write_strategy.write(f, data)
+            for item in self.write_strategy.written_lines(data):
+                f.write(item)
 
 
 class ConsoleWriter(Writer):

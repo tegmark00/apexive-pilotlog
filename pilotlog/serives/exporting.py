@@ -2,7 +2,7 @@ from exporter.template import Template, build_logbook_template
 from pilotlog.querysets.exporting import get_aircraft_export_qd, get_flight_export_qd
 
 
-def get_logbook_template() -> Template:
+def get_logbook() -> Template:
     aircraft = "aircraft"
     flight = "flight"
 
