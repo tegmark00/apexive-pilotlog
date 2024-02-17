@@ -267,9 +267,6 @@ class JsonLogEntryConverter(Converter):
         model_adapter = self.model_adapters[table_name]()
         meta = model_adapter.convert(data["meta"])
 
-        # if table_name == "flight":
-        #     print(data["meta"])
-
         return models.LogEntryDTO(
             user_id=data["user_id"],
             guid=data["guid"],

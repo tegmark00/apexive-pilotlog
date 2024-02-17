@@ -6,6 +6,7 @@ from django.utils.timezone import make_aware
 from pydantic import BaseModel, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
+
 T_TABLES = Literal[
     "aircraft",
     "airfield",

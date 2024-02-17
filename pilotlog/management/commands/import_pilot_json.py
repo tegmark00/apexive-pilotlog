@@ -1,5 +1,3 @@
-import json
-
 from importer.converters.iter import converted_items
 from importer.converters.json import JsonLogEntryConverter
 from importer.reader import FileReader, JsonFileReadStrategy
@@ -9,7 +7,7 @@ from pilotlog.serives.importing import DjangoImportSaver
 
 
 class Command(BaseCommand):
-    help = "Imports the pilot log data"
+    help = "Imports pilot log data"
 
     def add_arguments(self, parser: CommandParser):
         parser.add_argument("file", type=str)
