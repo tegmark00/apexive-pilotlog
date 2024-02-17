@@ -50,6 +50,11 @@ class Aircraft(ImportedModelMixin):
     sea = models.BooleanField()
     tmg = models.BooleanField()
     efis = models.BooleanField()
+
+    # aircraft
+    eng_group = models.IntegerField(blank=True, null=True)
+    eng_type = models.IntegerField(blank=True, null=True)
+
     fnpt = models.IntegerField()
     make = models.CharField(max_length=50)
     run2 = models.BooleanField()
@@ -88,6 +93,13 @@ class AirField(ImportedModelMixin):
     afiata = models.CharField(max_length=10)
     aficao = models.CharField(max_length=10)
     af_name = models.CharField(max_length=100)
+
+    # airfield
+    affaa = models.CharField(max_length=10, blank=True, null=True)
+    user_edit = models.BooleanField(blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    notes = models.CharField(max_length=100, blank=True, null=True)
+
     tz_code = models.CharField(max_length=10)
     latitude = models.FloatField()
     show_list = models.BooleanField()
@@ -166,6 +178,10 @@ class Flight(ImportedModelMixin):
     to_time_utc = models.IntegerField()
     arr_time_utc = models.IntegerField()
     base_offset = models.IntegerField()
+
+    # flight
+    cargo = models.IntegerField(blank=True, null=True)
+
     dep_time_utc = models.IntegerField(blank=True, null=True)
     ldg_time_utc = models.IntegerField()
     fuel_planned = models.IntegerField()

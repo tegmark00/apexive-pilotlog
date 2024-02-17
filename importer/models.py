@@ -30,6 +30,11 @@ class AirCraftDTO(BaseDTO):
     sea: bool
     tmg: bool
     efis: bool
+
+    # aircraft
+    eng_group: Optional[int]
+    eng_type: Optional[int]
+
     fnpt: int
     make: str
     run2: bool
@@ -65,6 +70,13 @@ class AirFieldDTO(BaseDTO):
     afiata: str
     aficao: str
     af_name: str
+
+    # airfield
+    city: Optional[str]
+    user_edit: Optional[bool]
+    notes: Optional[str]
+    affaa: Optional[str]
+
     tz_code: int
     latitude: int
     show_list: bool
@@ -137,6 +149,10 @@ class FlightDTO(BaseDTO):
     to_time_utc: int
     arr_time_utc: int
     base_offset: int
+
+    # flight
+    cargo: Optional[int]
+
     dep_time_utc: Optional[int]
     flight_code: uuid.UUID
     ldg_time_utc: int

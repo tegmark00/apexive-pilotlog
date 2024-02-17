@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.db.models import F, Value, CharField
+from django.db.models.functions import Coalesce
 
 from pilotlog.models import Aircraft, Flight
 
@@ -17,7 +18,7 @@ aircraft_mapping = {
     "Category": empty_string,
     "Class": F("aircraft_class"),
     "GearType": empty_string,
-    "EngineType": empty_string,
+    "EngineType": Coalesce(F("eng_type"), empty_string, output_field=CharField()),
     "Complex": F("complex"),
     "HighPerformance": F("high_perf"),
     "Pressurized": empty_string,
@@ -27,6 +28,9 @@ aircraft_mapping = {
 flight_mapping = {
     "Date": F("date_base"),
     "AircraftID": F("aircraft"),
+    "Route": F("route"),
+    "TotalTime": F("min_total"),
+    "Holds": F("holding"),
 }
 
 

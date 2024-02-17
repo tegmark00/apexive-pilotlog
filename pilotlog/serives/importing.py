@@ -4,6 +4,7 @@ from typing import Any
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model as BaseDjangoModel
+from django.db.transaction import atomic
 
 from importer import models as dto
 from importer.import_saver import ImportSaver
@@ -22,6 +23,7 @@ class Map:
 
 class DjangoImportSaver(ImportSaver):
 
+    @atomic
     def save(self, items):
 
         start = time.time()

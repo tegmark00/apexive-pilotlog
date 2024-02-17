@@ -12,6 +12,11 @@ class JsonAircraftConverter(Converter):
             sea=data["Sea"],
             tmg=data["TMG"],
             efis=data["Efis"],
+
+            # aircraft
+            eng_group=data.get("EngGroup"),
+            eng_type=data.get("EngType"),
+
             fnpt=data["FNPT"],
             make=data["Make"],
             run2=data["Run2"],
@@ -51,6 +56,13 @@ class JsonAirFieldConverter(Converter):
             afiata=data["AFIATA"],
             aficao=data["AFICAO"],
             af_name=data["AFName"],
+
+            # airfield
+            affaa=data.get("AFFAA"),
+            user_edit=data.get("UserEdit"),
+            city=data.get("City"),
+            notes=data.get("Notes"),
+
             tz_code=data["TZCode"],
             latitude=data["Latitude"],
             show_list=data["ShowList"],
@@ -129,6 +141,10 @@ class JsonFlightConverter(Converter):
             to_time_utc=data["ToTimeUTC"],
             arr_time_utc=data["ArrTimeUTC"],
             base_offset=data["BaseOffset"],
+
+            # flight
+            cargo=data.get("Cargo"),
+
             dep_time_utc=data["DepTimeUTC"],
             flight_code=data["FlightCode"],
             ldg_time_utc=data["LdgTimeUTC"],
