@@ -1,6 +1,6 @@
 from typing import Iterable, Any, Generator
 
-from importer.converters.base import Converter
+from importer.converters import Converter
 from importer.saver import Saver
 from importer.models import LogEntryDTO
 from importer.readers import Reader

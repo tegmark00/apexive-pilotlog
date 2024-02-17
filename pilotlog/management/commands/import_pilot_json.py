@@ -1,9 +1,9 @@
 from importer.utils import do_import
-from importer.converters.from_dict import LogEntryConverter
+from importer.converters import LogEntryConverter
 from importer.readers import LocalFileReader, JsonFileReadStrategy
 
 from django.core.management import BaseCommand, CommandParser
-from pilotlog.importer.saver import DjangoSaver
+from pilotlog.extns.importer.saver import DjangoSaver
 
 
 class Command(BaseCommand):

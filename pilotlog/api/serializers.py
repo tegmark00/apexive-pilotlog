@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from importer.converters.from_dict import LogEntryConverter
+from importer.converters import LogEntryConverter
 from importer.readers import JsonFileReadStrategy, StringReader
 from importer.utils import do_import
-from pilotlog.importer.saver import DjangoSaver
+from pilotlog.extns.importer.saver import DjangoSaver
 
 
 class ImportSerializer(serializers.Serializer):

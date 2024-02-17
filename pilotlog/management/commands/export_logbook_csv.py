@@ -1,8 +1,8 @@
 import datetime
 
 from django.core.management import BaseCommand
-from exporter.writer import FileWriter, CSVWriteStrategy, ConsoleWriter
-from pilotlog.exporter.logbook import DjangoLogbook
+from exporter.writer import FileWriter, CSVWriteStrategy
+from pilotlog.extns.exporter.logbook import DjangoLogbook
 
 
 class Command(BaseCommand):

@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 
-from pilotlog.importer.saver import DjangoSaver
+from pilotlog.extns.importer.saver import DjangoSaver
 
 
 class Command(BaseCommand):

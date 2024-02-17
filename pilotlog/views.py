@@ -7,12 +7,12 @@ from django.views.generic import FormView
 
 from exporter.writer import CSVWriteStrategy
 from importer.utils import do_import
-from importer.converters.from_dict import LogEntryConverter
+from importer.converters import LogEntryConverter
 from importer.readers import JsonFileReadStrategy, StringReader
 from pilotlog.forms import UploadJsonFileForm
-from pilotlog.exporter.logbook import DjangoLogbook
-from pilotlog.exporter.writers import LogbookStreamCSVWriter
-from pilotlog.importer.saver import DjangoSaver
+from pilotlog.extns.exporter.logbook import DjangoLogbook
+from pilotlog.extns.exporter.writers import LogbookStreamCSVWriter
+from pilotlog.extns.importer.saver import DjangoSaver
 
 
 class IndexView(FormView):
