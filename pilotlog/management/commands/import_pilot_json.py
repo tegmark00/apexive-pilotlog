@@ -1,6 +1,6 @@
 from importer.converters.iter import converted_items
 from importer.converters.json import JsonLogEntryConverter
-from importer.reader import FileReader, JsonFileReadStrategy
+from importer.readers import FileReader, JsonFileReadStrategy
 
 from django.core.management import BaseCommand, CommandParser
 from pilotlog.serives.importing import DjangoImportSaver

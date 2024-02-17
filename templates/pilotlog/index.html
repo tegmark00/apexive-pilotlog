@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import and Export Example</title>
+</head>
+<body>
+
+<h2>Import File:</h2>
+<form method="post" enctype="multipart/form-data" action="{% url 'import_logbook_csv' %}">
+    {% csrf_token %}
+    <input type="file" name="file">
+    <button type="submit">Upload</button>
+</form>
+<h2>Export File:</h2>
+<a href="{% url 'export_logbook_csv' %}">Download now for free</a>
+
+<script>
+</script>
+
+</body>
+</html>

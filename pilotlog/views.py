@@ -1,32 +1,46 @@
 import datetime
 
 from django.http import StreamingHttpResponse
+from django.urls import reverse
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import FormView
 
-from exporter.writer import Writer, WriteStrategy, CSVWriteStrategy
+from exporter.writer import CSVWriteStrategy
+from importer.converters.iter import converted_items
+from importer.converters.json import JsonLogEntryConverter
+from pilotlog.forms import UploadJsonFileForm
+from pilotlog.importer.readers import BytesReader
 from pilotlog.serives.exporting import get_logbook
+from pilotlog.exporter.writers import LogbookStreamCSVWriter
+from pilotlog.serives.importing import DjangoImportSaver
 
 
-class IndexView(TemplateView):
+class IndexView(FormView):
+    form_class = UploadJsonFileForm
     template_name = 'pilotlog/index.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['name'] = 'John Doe'
-        return context
+    def form_valid(self, form):
+        files = form.cleaned_data["file"]
+        saver = DjangoImportSaver()
+
+        for f in files:
+
+            reader = BytesReader(bytes=f)
+
+            saver.save(
+                items=converted_items(
+                    items=reader.read(),
+                    converter=JsonLogEntryConverter()
+                )
+            )
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('import_logbook_csv')
 
 
-class LogbookStreamCSVWriter(Writer):
-    def __init__(self, response: StreamingHttpResponse, write_strategy: WriteStrategy):
-        self.response = response
-        self.write_strategy = write_strategy
-
-    def write(self, data):
-        self.response.streaming_content = self.write_strategy.written_lines(data)
-
-
-class LogbookExportView(View):
+class CSVLogbookExportView(View):
     def get(self, request, *args, **kwargs):
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

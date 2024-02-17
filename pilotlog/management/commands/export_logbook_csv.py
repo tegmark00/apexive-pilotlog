@@ -11,9 +11,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        ConsoleWriter().write(
-            get_logbook().render()
-        )
+        # ConsoleWriter().write(
+        #     get_logbook().render()
+        # )
 
         FileWriter(
             file_path=f"{time} output.csv",
