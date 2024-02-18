@@ -12,6 +12,9 @@
     {% csrf_token %}
     <input type="file" name="file">
     <button type="submit">Upload</button>
+    {% if form.file.errors %}
+        <p style="color: red">{{ form.file.errors.as_text }}</p>
+    {% endif %}
 </form>
 <h2>Export File:</h2>
 <a href="{% url 'export_logbook_csv' %}">Download now for free</a>

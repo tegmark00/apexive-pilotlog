@@ -16,8 +16,13 @@ class Template:
         return self.tables[alias]
 
     def render(self) -> Iterable[list[Any]]:
-        max_columns = max(len(table.meta_items) for table in self.tables.values())
+        if self.tables:
+            max_columns = max(len(table.meta_items) for table in self.tables.values())
+        else:
+            max_columns = 1  # for the name of the template
+
         yield [self.name] + [""] * (max_columns - 1)
         yield [""] * max_columns
+
         for table in self.tables.values():
             yield from table.render(max_columns)

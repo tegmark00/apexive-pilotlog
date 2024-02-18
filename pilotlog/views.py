@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.http import StreamingHttpResponse
 from django.urls import reverse
@@ -22,16 +23,24 @@ class IndexView(FormView):
     def form_valid(self, form):
 
         for f in form.cleaned_data["file"]:
-            do_import(
-                reader=StringReader(data=f.decode("utf-8"), read_strategy=JsonFileReadStrategy()),
-                converter=LogEntryConverter(),
-                saver=DjangoSaver(),
-            )
+            try:
+                self.import_file(f)
+            except Exception as e:
+                logging.error(e)
+                form.add_error("file", "Could not import provided file")
+                return self.form_invalid(form)
 
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('import_logbook_csv')
+
+    def import_file(self, file):
+        do_import(
+            reader=StringReader(data=file.decode("utf-8"), read_strategy=JsonFileReadStrategy()),
+            converter=LogEntryConverter(),
+            saver=DjangoSaver(),
+        )
 
 
 class CSVLogbookExportView(View):
