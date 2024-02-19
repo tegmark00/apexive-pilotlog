@@ -1,4 +1,3 @@
-import logging
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -14,6 +13,7 @@ from pilotlog.extns.importer.saver import DjangoSaver
 
 
 class ImportTestCase(APITestCase):
+    do_import = 'pilotlog.extns.importer.mixs.do_import'
 
     def setUp(self):
         super().setUp()
@@ -31,20 +31,20 @@ class ImportTestCase(APITestCase):
 
     def test_do_import_called(self):
 
-        with mock.patch('pilotlog.api.serializers.do_import') as m:
+        with mock.patch(self.do_import) as mocked_do_import:
 
             response = self.client.post(
                 self.url,
                 data={'file': self.file},
             )
 
-            m.assert_called_once_with(
+            mocked_do_import.assert_called_once_with(
                 reader=mock.ANY,
                 converter=mock.ANY,
                 saver=mock.ANY,
             )
 
-            params = m.call_args[1]
+            params = mocked_do_import.call_args[1]
 
             self.assertTrue(isinstance(params['reader'], StringReader))
             self.assertTrue(isinstance(params['converter'], LogEntryConverter))
@@ -54,13 +54,14 @@ class ImportTestCase(APITestCase):
         self.assertEqual(response.data, {"status": "ok"})
 
     def test_import_exception(self):
-        with mock.patch('pilotlog.api.serializers.do_import', side_effect=Exception('test')) as mocked_do_import:
+        with mock.patch(self.do_import, side_effect=Exception('test')) as mocked_do_import:
             with mock.patch('logging.error') as mocked_logger:
                 response = self.client.post(
                     self.url,
                     data={'file': self.file},
                 )
                 mocked_logger.assert_called_once()
+            mocked_do_import.assert_called_once()
 
             self.assertEqual(response.status_code, 400)
             self.assertEqual(response.data, {"file": "Could not import provided file"})

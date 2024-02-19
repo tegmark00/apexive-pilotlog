@@ -1,14 +1,11 @@
 import logging
 
 from rest_framework import serializers
-from importer.converters import LogEntryConverter
-from importer.readers import JsonFileReadStrategy, StringReader
-from importer.utils import do_import
 from pilotlog.api.validators import FileExtensionValidator
-from pilotlog.extns.importer.saver import DjangoSaver
+from pilotlog.extns.importer.mixs import WithImportUploadedFile
 
 
-class ImportSerializer(serializers.Serializer):
+class ImportSerializer(WithImportUploadedFile, serializers.Serializer):
     file = serializers.FileField(
         write_only=True,
         validators=[FileExtensionValidator(allowed_extensions=["json"])],
@@ -20,15 +17,7 @@ class ImportSerializer(serializers.Serializer):
 
     def save(self, **kwargs):
         try:
-            self.import_file(self.validated_data["file"].read().decode("utf-8"))
+            self.import_file(self.validated_data["file"])
         except Exception as e:
             logging.error(e)
             raise serializers.ValidationError({"file": "Could not import provided file"})
-
-    @staticmethod
-    def import_file(file):
-        do_import(
-            reader=StringReader(data=file, read_strategy=JsonFileReadStrategy()),
-            converter=LogEntryConverter(),
-            saver=DjangoSaver(),
-        )
