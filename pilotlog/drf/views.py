@@ -1,7 +1,7 @@
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 
-from pilotlog.api.serializers import ImportSerializer
+from pilotlog.drf.serializers import ImportSerializer
 
 
 class ImportView(CreateAPIView):

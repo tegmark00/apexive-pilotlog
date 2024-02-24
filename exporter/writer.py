@@ -22,7 +22,6 @@ class Echo:
 
 
 class CSVWriteStrategy(WriteStrategy):
-
     def written_lines(self, data) -> Iterator[Any]:
         writer = csv.writer(Echo())
         for row in data:
@@ -42,7 +41,6 @@ class FileWriter(Writer):
 
 
 class ConsoleWriter(Writer):
-
     def write(self, data):
         for row in data:
             print(row)

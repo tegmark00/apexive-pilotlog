@@ -1,11 +1,23 @@
+from typing import Literal, Any
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models.functions import (
+    Coalesce,
+    Concat,
+    LPad,
+    Cast,
+    ExtractHour,
+    ExtractMinute,
+)
 
 
 class LogEntry(models.Model):
     guid = models.CharField(max_length=32)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="log_entries")
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, related_name="log_entries"
+    )
     content_object = GenericForeignKey("content_type", "guid")
 
     user_id = models.PositiveBigIntegerField()
@@ -33,17 +45,50 @@ class UUIDCodePKMixin(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return str(self.code)
 
-class ImportedModelMixin(
-    RecordModifiedMixin,
-    UUIDCodePKMixin
-):
 
+class ImportedModelMixin(RecordModifiedMixin, UUIDCodePKMixin):
     class Meta:
         abstract = True
 
 
+class ExportedFlightLogBookQuerySet(models.QuerySet):
+    map_exported_fields: dict[str, models.F]
+
+    def annotate_exported_fields(self):
+        annotated = self.map_exported_fields | self.get_additional_fields()
+        return self.annotate(**annotated).values(*annotated.keys())
+
+    def get_additional_fields(self) -> dict[str, Any]:
+        return {}
+
+
+class AircraftQueryset(ExportedFlightLogBookQuerySet):
+    map_exported_fields = {
+        "AircraftID": models.F("code"),
+        "EquipmentType": models.F("model"),
+        "TypeCode": models.F("device_code"),
+        "Make": models.F("make"),
+        "Model": models.F("model"),
+        "Category": models.F("category"),
+        "Class": models.F("aircraft_class"),
+        "Complex": models.F("complex"),
+        "HighPerformance": models.F("high_perf"),
+    }
+
+    def get_additional_fields(self):
+        return {
+            "EngineType": Coalesce(
+                models.F("eng_type"), models.Value(""), output_field=models.CharField()
+            )
+        }
+
+
 class Aircraft(ImportedModelMixin):
+    objects = AircraftQueryset.as_manager()
+
     fin = models.CharField(max_length=10)
     sea = models.BooleanField()
     tmg = models.BooleanField()
@@ -130,8 +175,65 @@ class Pilot(ImportedModelMixin):
         db_table = "pilot"
 
 
+class FlightQueryset(ExportedFlightLogBookQuerySet):
+    map_exported_fields = {
+        "AircraftID": models.F("aircraft"),
+        "Date": models.F("date_utc"),
+        "Route": models.F("route"),
+        "TotalTime": models.F("min_total"),
+        "Holds": models.F("holding"),
+    }
+
+    def get_additional_fields(self) -> dict[str, Any]:
+        return {
+            "TimeOut": self.get_hhmm_time("dep_time_utc"),
+            "TimeIn": self.get_hhmm_time("arr_time_utc"),
+        }
+
+    def get_hhmm_time(
+        self, time_field: Literal["dep_time_utc", "arr_time_utc"]
+    ) -> Concat:
+        """Get time in HHMM format."""
+        return Concat(
+            LPad(
+                Cast(ExtractHour(models.F(time_field)), models.CharField()),
+                2,
+                models.Value("0"),
+            ),
+            LPad(
+                Cast(ExtractMinute(models.F(time_field)), models.CharField()),
+                2,
+                models.Value("0"),
+            ),
+        )
+
+    @staticmethod
+    def sync_with_airfields():
+        """
+        Sync flight departure and arrival with airfields.
+        Should be called ones we have imported or created airfields.
+        """
+        Flight.objects.filter(
+            models.Q(arr__isnull=True)
+            & models.Exists(AirField.objects.filter(pk=models.OuterRef("arr_code")))
+        ).update(arr=models.OuterRef("arr_code"))
+
+        Flight.objects.filter(
+            models.Q(dep__isnull=True)
+            & models.Exists(AirField.objects.filter(pk=models.OuterRef("dep_code")))
+        ).update(dep=models.OuterRef("dep_code"))
+
+
 class Flight(ImportedModelMixin):
-    aircraft = models.ForeignKey(Aircraft, on_delete=models.SET_NULL, blank=True, null=True, db_column="aircraft_code")
+    objects = FlightQueryset.as_manager()
+
+    aircraft = models.ForeignKey(
+        Aircraft,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="aircraft_code",
+    )
 
     pf = models.BooleanField()
     pax = models.IntegerField()
@@ -152,10 +254,38 @@ class Flight(ImportedModelMixin):
     # Should we move these to m2m relationship?
     # As we have only 4 pilots, we can keep them as foreign keys
     # Consider to move to m2m relationship if we have more pilots
-    p1 = models.ForeignKey(Pilot, on_delete=models.SET_NULL, blank=True, null=True, db_column="p1_code", related_name="p1_flights")
-    p2 = models.ForeignKey(Pilot, on_delete=models.SET_NULL, blank=True, null=True, db_column="p2_code", related_name="p2_flights")
-    p3 = models.ForeignKey(Pilot, on_delete=models.SET_NULL, blank=True, null=True, db_column="p3_code", related_name="p3_flights")
-    p4 = models.ForeignKey(Pilot, on_delete=models.SET_NULL, blank=True, null=True, db_column="p4_code", related_name="p4_flights")
+    p1 = models.ForeignKey(
+        Pilot,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="p1_code",
+        related_name="p1_flights",
+    )
+    p2 = models.ForeignKey(
+        Pilot,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="p2_code",
+        related_name="p2_flights",
+    )
+    p3 = models.ForeignKey(
+        Pilot,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="p3_code",
+        related_name="p3_flights",
+    )
+    p4 = models.ForeignKey(
+        Pilot,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="p4_code",
+        related_name="p4_flights",
+    )
 
     report = models.CharField(max_length=100)
     tag_ops = models.CharField(max_length=100)
@@ -169,8 +299,22 @@ class Flight(ImportedModelMixin):
     arr_code = models.UUIDField(db_column="_arr_code")
     dep_code = models.UUIDField(db_column="_dep_code")
 
-    arr = models.ForeignKey(AirField, on_delete=models.SET_NULL, blank=True, null=True, db_column="arr_code", related_name="arr_flights")
-    dep = models.ForeignKey(AirField, on_delete=models.SET_NULL, blank=True, null=True, db_column="dep_code", related_name="dep_flights")
+    arr = models.ForeignKey(
+        AirField,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="arr_code",
+        related_name="arr_flights",
+    )
+    dep = models.ForeignKey(
+        AirField,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        db_column="dep_code",
+        related_name="dep_flights",
+    )
 
     date_utc = models.DateField()
     hobbs_in = models.IntegerField()

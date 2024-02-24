@@ -1,9 +1,7 @@
 import dataclasses
 from typing import Iterable, Any
 
-from exporter.types import (
-    Type
-)
+from exporter.types import Type
 
 
 @dataclasses.dataclass
@@ -38,15 +36,14 @@ class Table:
 
         map_pos = {}
 
-        for i, item in enumerate(self.meta_items):
+        for i, table_item in enumerate(self.meta_items):
+            if table_item.show_comment:
+                row1[i] = table_item.type.comment
 
-            if item.show_comment:
-                row1[i] = item.type.comment
+            row2[i] = table_item.type.name
+            row3[i] = table_item.name
 
-            row2[i] = item.type.name
-            row3[i] = item.name
-
-            map_pos[item.name] = i
+            map_pos[table_item.name] = i
 
         yield row1
         yield row2
@@ -62,5 +59,3 @@ class Table:
         if self.empty_rows:
             for _ in range(self.empty_rows):
                 yield [""] * max_columns
-
-

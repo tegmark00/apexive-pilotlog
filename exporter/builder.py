@@ -1,21 +1,48 @@
 from exporter.tables import Table, TableItem
 from exporter.template import Template
-from exporter.types import text, yyyy, boolean, date, hhmm, decimal, number, packed_detail_approach, \
-    packed_detail_person, datetime_
+from exporter.types import (
+    text,
+    yyyy,
+    boolean,
+    date,
+    hhmm,
+    decimal,
+    number,
+    packed_detail_approach,
+    packed_detail_person,
+    datetime_,
+)
 
 
 class LogbookBuilder:
+    """
+    LogbookBuilder class to build a logbook template for provided CSV template.
+    Adding aircraft and flight tables information to the template.
+
+    Usage:
+    ```
+    builder = LogbookBuilder()
+    builder.add_aircraft_items(aircraft_items)
+    builder.add_flight_items(flight_items)
+    template = builder.get_logbook_template()
+    rows = template.render()
+    ```
+    """
+
+    aircraft_alias = "aircraft"
+    flight_alias = "flights"
 
     def __init__(self):
+        # Name is a part of the CSV template, so we hold it hardcoded
         self.template = Template(name="ForeFlight Logbook Import")
 
         self.aircraft_table = self.create_aircraft_table()
         self.flights_table = self.create_flights_table()
 
-        self.template.add_table("aircraft", self.aircraft_table)
-        self.template.add_table("flights", self.flights_table)
+        self.template.add_table(self.aircraft_alias, self.aircraft_table)
+        self.template.add_table(self.flight_alias, self.flights_table)
 
-    def get_logbook_template(self):
+    def get_logbook_template(self) -> Template:
         return self.template
 
     def get_aircraft_table(self):
@@ -49,7 +76,7 @@ class LogbookBuilder:
                 TableItem("HighPerformance", boolean),
                 TableItem("Pressurized", boolean),
                 TableItem("TAA", boolean),
-            ]
+            ],
         )
 
     @staticmethod
@@ -62,14 +89,12 @@ class LogbookBuilder:
                 TableItem("From", text),
                 TableItem("To", text),
                 TableItem("Route", text),
-
                 TableItem("TimeOut", hhmm),
                 TableItem("TimeOff", hhmm),
                 TableItem("TimeOn", hhmm),
                 TableItem("TimeIn", hhmm),
                 TableItem("OnDuty", hhmm),
                 TableItem("OffDuty", hhmm),
-
                 TableItem("TotalTime", decimal),
                 TableItem("PIC", decimal),
                 TableItem("SIC", decimal),
@@ -79,50 +104,41 @@ class LogbookBuilder:
                 TableItem("NVG", decimal),
                 TableItem("NVGOps", number),
                 TableItem("Distance", decimal),
-
                 TableItem("DayTakeoffs", number),
                 TableItem("DayLandingsFullStop", number),
                 TableItem("NightTakeoffs", number),
                 TableItem("NightLandingsFullStop", number),
                 TableItem("AllLandings", number),
-
                 TableItem("ActualInstrument", decimal),
                 TableItem("SimulatedInstrument", decimal),
                 TableItem("HobbsStart", decimal),
                 TableItem("HobbsEnd", decimal),
                 TableItem("TachStart", decimal),
                 TableItem("TachEnd", decimal),
-
                 TableItem("Holds", number),
-
                 TableItem("Approach1", packed_detail_approach, show_comment=True),
                 TableItem("Approach2", packed_detail_approach),
                 TableItem("Approach3", packed_detail_approach),
                 TableItem("Approach4", packed_detail_approach),
                 TableItem("Approach5", packed_detail_approach),
                 TableItem("Approach6", packed_detail_approach),
-
                 TableItem("DualGiven", decimal),
                 TableItem("DualReceived", decimal),
                 TableItem("SimulatedFlight", decimal),
                 TableItem("GroundTraining", decimal),
-
                 TableItem("InstructorName", text),
                 TableItem("InstructorComments", text),
-
                 TableItem("Person1", packed_detail_person, show_comment=True),
                 TableItem("Person2", packed_detail_person),
                 TableItem("Person3", packed_detail_person),
                 TableItem("Person4", packed_detail_person),
                 TableItem("Person5", packed_detail_person),
                 TableItem("Person6", packed_detail_person),
-
                 TableItem("FlightReview", boolean),
                 TableItem("Checkride", boolean),
                 TableItem("IPC", boolean),
                 TableItem("NVGProficiency", boolean),
                 TableItem("FAA6158", boolean),
-
                 TableItem("[Text]CustomFieldName", text),
                 TableItem("[Numeric]CustomFieldName", decimal),
                 TableItem("[Hours]CustomFieldName", decimal),
@@ -131,5 +147,5 @@ class LogbookBuilder:
                 TableItem("[DateTime]CustomFieldName", datetime_),
                 TableItem("[Toggle]CustomFieldName", boolean),
                 TableItem("PilotComments", text),
-            ]
+            ],
         )

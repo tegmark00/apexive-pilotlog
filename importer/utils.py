@@ -6,19 +6,12 @@ from importer.models import LogEntryDTO
 from importer.readers import Reader
 
 
-def converted_items(items: Iterable[Any], converter: Converter) -> Generator[LogEntryDTO, None, None]:
+def converted_items(
+    items: Iterable[Any], converter: Converter
+) -> Generator[LogEntryDTO, None, None]:
     for item_ in items:
         yield converter.convert(item_)
 
 
-def do_import(
-        reader: Reader,
-        converter: Converter,
-        saver: Saver
-):
-    saver.save(
-        items=converted_items(
-            items=reader.read(),
-            converter=converter
-        )
-    )
+def do_import(reader: Reader, converter: Converter, saver: Saver):
+    saver.save(items=converted_items(items=reader.read(), converter=converter))

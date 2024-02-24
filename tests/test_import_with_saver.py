@@ -4,17 +4,15 @@ from django.test import TestCase
 from importer.converters import LogEntryConverter
 from importer.readers import StringReader, JsonFileReadStrategy
 from importer.utils import do_import
-from pilotlog.extns.importer.saver import DjangoSaver
+from pilotlog.saver import DjangoSaver
 from pilotlog import models
 
 
 class TestImportWithSaver(TestCase):
     def test_import_with_saver(self):
-
-        with staticfiles_storage.open('samples.json') as file:
-
+        with staticfiles_storage.open("samples.json") as file:
             reader = StringReader(
-                file.read().decode('utf-8'),
+                file.read().decode("utf-8"),
                 read_strategy=JsonFileReadStrategy(),
             )
 

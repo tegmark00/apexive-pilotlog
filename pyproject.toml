@@ -12,6 +12,20 @@ pydantic = "^2.6.1"
 djangorestframework = "^3.14.0"
 coverage = "^7.4.1"
 freezegun = "^1.4.0"
+drf-nested-routers = "^0.93.5"
+pre-commit = "^3.6.2"
+mypy = "^1.8.0"
+django-df-api-drf = "^1.0.4"
+djangorestframework-simplejwt = "^5.3.1"
+
+
+[tools.black]
+max-line-length = 88
+
+
+[tool.ruff]
+line-length = 88
+fix = true
 
 
 [build-system]

@@ -4,7 +4,6 @@ from importer import models
 
 
 class Converter(ABC):
-
     @abstractmethod
     def convert(self, data):
         pass
@@ -27,5 +26,5 @@ class LogEntryConverter(Converter):
     def convert(self, data: dict) -> models.LogEntryDTO:
         table_name = data["table"].lower()
         model_class = self.models_map[table_name]
-        data['meta'] = model_class(**data['meta'])
+        data["meta"] = model_class(**data["meta"])
         return models.LogEntryDTO(**data)

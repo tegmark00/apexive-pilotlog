@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from dataclasses import Field
 from typing import Literal, Optional
 
 from django.utils.timezone import make_aware
@@ -43,7 +42,7 @@ class AirCraftDTO(BaseDTO):
     make: str = Field(..., alias="Make")
     run2: bool = Field(..., alias="Run2")
     aircraft_class: int = Field(..., alias="Class")
-    model: str =  Field(..., alias="Model")
+    model: str = Field(..., alias="Model")
     power: int = Field(..., alias="Power")
     seats: int = Field(..., alias="Seats")
     active: bool = Field(..., alias="Active")
@@ -171,13 +170,17 @@ class FlightDTO(BaseDTO):
     flight_search: str = Field(..., alias="FlightSearch")
 
     @field_validator("p1_code", "p2_code", "p3_code", "p4_code")
-    def validate_pilot_codes(cls, v: Optional[uuid.UUID], info: ValidationInfo) -> Optional[uuid.UUID]:
+    def validate_pilot_codes(
+        cls, v: Optional[uuid.UUID], info: ValidationInfo
+    ) -> Optional[uuid.UUID]:
         if v == uuid.UUID(int=0):
             return None
         return v
 
     @field_validator("arr_time_utc", "dep_time_utc", mode="before")
-    def validate_time_utc(cls, v: Optional[int], info: ValidationInfo) -> Optional[datetime.time]:
+    def validate_time_utc(
+        cls, v: Optional[int], info: ValidationInfo
+    ) -> Optional[datetime.time]:
         if v:
             h = v // 60
             m = v % 60
@@ -254,7 +257,9 @@ class QualificationDTO(BaseDTO):
     notify_comment: str = Field(..., alias="NotifyComment")
 
     @field_validator("date_valid", "date_issued", mode="before")
-    def validate_dates(cls, v: Optional[datetime.date], info: ValidationInfo) -> Optional[datetime.date]:
+    def validate_dates(
+        cls, v: Optional[datetime.date], info: ValidationInfo
+    ) -> Optional[datetime.date]:
         return v or None
 
 
@@ -274,7 +279,9 @@ class LogEntryDTO(BaseModel):
     modified: datetime.datetime = Field(..., alias="_modified")
 
     @field_validator("modified")
-    def validate_modified(cls, v: datetime.datetime, info: ValidationInfo) -> datetime.datetime:
+    def validate_modified(
+        cls, v: datetime.datetime, info: ValidationInfo
+    ) -> datetime.datetime:
         if v.tzinfo is None:
             return make_aware(v)
         return v

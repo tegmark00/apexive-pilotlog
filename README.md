@@ -42,7 +42,7 @@ python manage.py runserver
 ### Using UI
 Go to http://127.0.0.1:8000/ and use form to upload a JSON file with data.
 
-Example file: `import - pilotlog_mcc.json`; 
+Example file: `import - pilotlog_mcc.json`;
 
 ### Using command
 Use management command to import data from a file:

@@ -1,9 +1,8 @@
 from django.core.management import BaseCommand
 
-from pilotlog.extns.importer.saver import DjangoSaver
+from pilotlog.models import Flight
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
-        DjangoSaver().associate_flights_and_airfields()
+        Flight.objects.sync_with_airfields()

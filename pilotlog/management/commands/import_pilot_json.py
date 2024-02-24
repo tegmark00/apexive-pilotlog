@@ -3,7 +3,7 @@ from importer.converters import LogEntryConverter
 from importer.readers import LocalFileReader, JsonFileReadStrategy
 
 from django.core.management import BaseCommand, CommandParser
-from pilotlog.extns.importer.saver import DjangoSaver
+from pilotlog.importer import DjangoSaver
 
 
 class Command(BaseCommand):
@@ -13,13 +13,10 @@ class Command(BaseCommand):
         parser.add_argument("file", type=str)
 
     def handle(self, *args, **options):
-
         if "file" in options:
-
             do_import(
                 reader=LocalFileReader(
-                    file_path=options["file"],
-                    read_strategy=JsonFileReadStrategy()
+                    file_path=options["file"], read_strategy=JsonFileReadStrategy()
                 ),
                 converter=LogEntryConverter(),
                 saver=DjangoSaver(),

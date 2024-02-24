@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('', include('pilotlog.urls')),
-    path('api/', include('pilotlog.api.urls')),
-    path('admin/', admin.site.urls),
+    path("", include("pilotlog.urls")),
+    path("api/", include("df_api_drf.urls"), name="api-docs"),
+    # path("api/", include("pilotlog.drf.urls"), name="pilotlog-api"),
+    path("admin/", admin.site.urls),
 ]
